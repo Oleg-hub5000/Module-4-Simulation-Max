@@ -8,6 +8,7 @@ RADIUS = 7
 num_cells = 50
 normal_cell_color = (45, 200, 110)
 infected_cell_color = (230, 130, 30)
+frames = 0
 
 cells = []
 
@@ -80,20 +81,41 @@ def draw():
 
 
 def update():
+    global frames
     for cell in cells:
         cell.move_cell(cells)
 
     for i in range(len(cells)):
         for j in range(i + 1, len(cells)):
             cells[i].check_collide(cells[j])
+    frames += 1
+    if check_is_all_infected():
+        sim_time = round(frames / 60, 2)
+        with open("sim_data1.txt", "a") as f:
+            f.write(f"{sim_time}\n")
+        init_cells()
 
 
-for i in range(50):
-    x, y = random.randint(RADIUS, WIDTH - RADIUS), random.randint(RADIUS, HEIGHT - RADIUS)
-    point = Point(x, y)
-    h, v = random.uniform(-3, 3), random.uniform(-3, 3)
-    vector = Vector(h, v)
-    is_infected = (i == 0)
-    cells.append(Cell(point, vector, infected=is_infected))
+def init_cells():
+    global frames
+    frames = 0
+    cells.clear()
+    for i in range(num_cells):
+        x, y = random.randint(RADIUS, WIDTH - RADIUS), random.randint(RADIUS, HEIGHT - RADIUS)
+        point = Point(x, y)
+        h, v = random.uniform(-2, 2), random.uniform(-2, 2)
+        vector = Vector(h, v)
+        is_infected = (i == 0)
+        cells.append(Cell(point, vector, infected=is_infected))
+
+
+def check_is_all_infected():
+    for cell in cells:
+        if cell.infected == False:
+            return False
+    return True
+
+
+init_cells()
 
 pgzrun.go()
